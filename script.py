@@ -10,22 +10,23 @@ def get_html(url, headers):
 
 def parse_jobs(html_data):
     soup = BeautifulSoup(html_data, 'html.parser')
-    job_listings = soup.find_all('div', class_='truncated-text-fix')
+    job_listings = soup.find_all('li', class_='list-group-item')
     jobs_data = []
 
     for job in job_listings:
         title = job.find('h2')
+        job_id = job.get("id") if job else None
         company = job.find(class_="d-inline-block mt-1 mb-0 ng-star-inserted")
         types = job.find(class_="mr-1 mb-0 ng-star-inserted")
         lieu = job.find(class_="mr-3 mb-1 cc-font-size-small")
         date = job.find(class_="mb-0")
-        jobs_data.append({"Titre": title, "Company": company, "Type": types, "Lieu": lieu, "Publication": date})
+        jobs_data.append({"Titre": title, "Company": company, "Type": types, "Lieu": lieu, "Publication": date, "ID": job_id})
 
     return jobs_data
 
 def create_dataframe(jobs_data):
     df_jobs = pd.DataFrame(jobs_data)
-    return df_jobs.iloc[::2]
+    return df_jobs#.iloc[::2]
 
 def main():
     url = "https://www.meteojob.com/jobs/meteo?job=36692~ENTRY_LEVEL~INTERMEDIATE~SENIOR~EXPERT&location=2996944~30"
@@ -38,4 +39,3 @@ def main():
     if html_data:
         jobs_data = parse_jobs(html_data)
         df_jobs = create_dataframe(jobs_data)
-        display(df_jobs)
